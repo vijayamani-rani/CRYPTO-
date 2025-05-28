@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 10
+
+void encrypt(int key[MAX][MAX], int plaintext[MAX], int n, int ciphertext[MAX]) {
+    for (int i = 0; i < n; i++) {
+        ciphertext[i] = 0;
+        for (int j = 0; j < n; j++) {
+            ciphertext[i] += key[i][j] * plaintext[j];
+        }
+        ciphertext[i] = ciphertext[i] % 26; // Modulo 26 for alphabet
+    }
+}
+
+void getKeyMatrix(int key[MAX][MAX], int n) {
+    printf("Enter the key matrix (%d x %d):\n", n, n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &key[i][j]);
+        }
+    }
+}
+
+void getPlaintext(int plaintext[MAX], int n) {
+    printf("Enter the plaintext (as numbers, e.g., A=0, B=1, ... Z=25):\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &plaintext[i]);
+    }
+}
+
+void printCiphertext(int ciphertext[MAX], int n) {
+    printf("Ciphertext: ");
+    for (int i = 0; i < n; i++) {
+        printf("%c", ciphertext[i] + 'A'); // Convert back to characters
+    }
+    printf("\n");
+}
+
+int main() {
+    int n;
+    printf("Enter the size of the key matrix (n x n): ");
+    scanf("%d", &n);
+
+    int key[MAX][MAX], plaintext[MAX], ciphertext[MAX];
+
+    getKeyMatrix(key, n);
+    getPlaintext(plaintext, n);
+    encrypt(key, plaintext, n, ciphertext);
+    printCiphertext(ciphertext, n);
+
+    return 0;
+}
