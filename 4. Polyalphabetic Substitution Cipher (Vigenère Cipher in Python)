@@ -1,0 +1,18 @@
+def polyalpha_encrypt(plaintext, key):
+    plaintext = plaintext.upper()
+    key = key.upper()
+    ciphertext = ''
+    j = 0
+    for ch in plaintext:
+        if ch.isalpha():
+            k = ord(key[j % len(key)]) - ord('A')
+            c = (ord(ch) - ord('A') + k) % 26 + ord('A')
+            ciphertext += chr(c)
+            j += 1
+        else:
+            ciphertext += ch
+    return ciphertext
+
+pt = input("Enter plaintext: ")
+key = input("Enter key: ")
+print("Ciphertext:", polyalpha_encrypt(pt, key))
