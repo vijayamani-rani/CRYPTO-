@@ -1,0 +1,29 @@
+def cbc_encrypt(plaintext, key, iv, block_size=8):
+    padded = pad(plaintext, block_size)
+    ciphertext = b''
+    prev = iv
+    for block in split_blocks(padded, block_size):
+        xored = xor_bytes(block, prev)
+        enc_block = encrypt_block(xored, key)
+        ciphertext += enc_block
+        prev = enc_block
+    return ciphertext
+
+def cbc_decrypt(ciphertext, key, iv, block_size=8):
+    plaintext = b''
+    prev = iv
+    for block in split_blocks(ciphertext, block_size):
+        dec_block = decrypt_block(block, key)
+        xored = xor_bytes(dec_block, prev)
+        plaintext += xored
+        prev = block
+    return unpad(plaintext)
+
+# Demo
+iv = b"initvect"
+print("CBC Mode")
+ct = cbc_encrypt(plaintext, key, iv)
+print("Ciphertext:", ct.hex())
+pt = cbc_decrypt(ct, key, iv)
+print("Decrypted:", pt)
+print()
