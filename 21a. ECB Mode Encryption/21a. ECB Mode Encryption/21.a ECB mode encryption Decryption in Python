@@ -1,0 +1,44 @@
+def pad(data, block_size=8):
+    padding_len = block_size - (len(data) % block_size)
+    return data + bytes([0x80]) + bytes([0x00] * (padding_len - 1))
+
+def unpad(data):
+    idx = data.rfind(0x80)
+    if idx == -1:
+        return data
+    return data[:idx]
+
+def xor_bytes(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+
+def split_blocks(data, block_size=8):
+    return [data[i:i+block_size] for i in range(0, len(data), block_size)]
+
+def encrypt_block(block, key):
+    return xor_bytes(block, key)
+
+def decrypt_block(block, key):
+    return xor_bytes(block, key)
+
+def ecb_encrypt(plaintext, key, block_size=8):
+    padded = pad(plaintext, block_size)
+    ciphertext = b''
+    for block in split_blocks(padded, block_size):
+        ciphertext += encrypt_block(block, key)
+    return ciphertext
+
+def ecb_decrypt(ciphertext, key, block_size=8):
+    plaintext = b''
+    for block in split_blocks(ciphertext, block_size):
+        plaintext += decrypt_block(block, key)
+    return unpad(plaintext)
+
+# Demo
+key = b"mysecret"
+plaintext = b"Attack at dawn!"
+print("ECB Mode")
+ct = ecb_encrypt(plaintext, key)
+print("Ciphertext:", ct.hex())
+pt = ecb_decrypt(ct, key)
+print("Decrypted:", pt)
+print()
