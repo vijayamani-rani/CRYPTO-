@@ -1,0 +1,12 @@
+# Problem 14b: Finding key to decrypt ciphertext to a new plaintext
+ciphertext = "bfaeuadgxdqpg"  # Assume this is from 14a output
+new_plaintext = "cashnotneeded"
+new_key = []
+
+for i, ch in enumerate(ciphertext):
+    c = ord(ch) - ord('a')
+    p = ord(new_plaintext[i]) - ord('a')
+    k = (c - p + 26) % 26
+    new_key.append(k)
+
+print("Key to decrypt to 'cash not needed':", new_key)
