@@ -1,0 +1,21 @@
+def ctr_encrypt_affine(plaintext, key_a, key_b, counter_start=0):
+    ciphertext = b''
+    for i, byte in enumerate(plaintext):
+        counter = (counter_start + i) % 256
+        keystream = affine_encrypt_byte(counter)
+        c = byte ^ keystream
+        ciphertext += bytes([c])
+    return ciphertext
+
+def ctr_decrypt_affine(ciphertext, key_a, key_b, counter_start=0):
+    # Encryption and decryption same in CTR mode
+    return ctr_encrypt_affine(ciphertext, key_a, key_b, counter_start)
+
+# Using same affine params a=5,b=8,a_inv computed before
+plaintext = bytes([0b00000001, 0b00000010, 0b00000100])
+counter_start = 0
+
+ct = ctr_encrypt_affine(plaintext, a, b, counter_start)
+print("CTR Affine Ciphertext:", [bin(c) for c in ct])
+pt = ctr_decrypt_affine(ct, a, b, counter_start)
+print("CTR Affine Decrypted:", [bin(p) for p in pt])
