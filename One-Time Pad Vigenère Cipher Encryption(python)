@@ -1,0 +1,15 @@
+# Problem 14a: One-Time Pad Vigenère Cipher Encryption
+plaintext = "send more money"
+key_stream = [9, 0, 1, 7, 23, 15, 21, 14, 11, 11, 2, 8, 9]
+
+plaintext = plaintext.replace(" ", "").lower()
+ciphertext = ""
+
+for i, ch in enumerate(plaintext):
+    if ch.isalpha():
+        p = ord(ch) - ord('a')
+        k = key_stream[i % len(key_stream)]
+        c = (p + k) % 26
+        ciphertext += chr(c + ord('a'))
+
+print("Ciphertext:", ciphertext)
