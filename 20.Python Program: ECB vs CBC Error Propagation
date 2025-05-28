@@ -1,0 +1,101 @@
+def xor_bytes(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+
+def pad(text, block_size=8):
+    padding_len = block_size - (len(text) % block_size)
+    return text + bytes([padding_len]) * padding_len
+
+def unpad(padded):
+    padding_len = padded[-1]
+    return padded[:-padding_len]
+
+# Toy cipher encrypt/decrypt: XOR with key (same for both)
+def encrypt_block(block, key):
+    return xor_bytes(block, key)
+
+def decrypt_block(block, key):
+    return xor_bytes(block, key)
+
+def split_blocks(data, block_size=8):
+    return [data[i:i+block_size] for i in range(0, len(data), block_size)]
+
+# ECB mode encryption
+def ecb_encrypt(plaintext, key, block_size=8):
+    plaintext = pad(plaintext, block_size)
+    blocks = split_blocks(plaintext, block_size)
+    ciphertext = b''.join(encrypt_block(block, key) for block in blocks)
+    return ciphertext
+
+# ECB mode decryption
+def ecb_decrypt(ciphertext, key, block_size=8):
+    blocks = split_blocks(ciphertext, block_size)
+    plaintext = b''.join(decrypt_block(block, key) for block in blocks)
+    return unpad(plaintext)
+
+# CBC mode encryption
+def cbc_encrypt(plaintext, key, iv, block_size=8):
+    plaintext = pad(plaintext, block_size)
+    blocks = split_blocks(plaintext, block_size)
+    ciphertext_blocks = []
+    prev = iv
+    for block in blocks:
+        xored = xor_bytes(block, prev)
+        encrypted = encrypt_block(xored, key)
+        ciphertext_blocks.append(encrypted)
+        prev = encrypted
+    return b''.join(ciphertext_blocks)
+
+# CBC mode decryption
+def cbc_decrypt(ciphertext, key, iv, block_size=8):
+    blocks = split_blocks(ciphertext, block_size)
+    plaintext_blocks = []
+    prev = iv
+    for block in blocks:
+        decrypted = decrypt_block(block, key)
+        xored = xor_bytes(decrypted, prev)
+        plaintext_blocks.append(xored)
+        prev = block
+    plaintext = b''.join(plaintext_blocks)
+    return unpad(plaintext)
+
+# Demo and error introduction
+block_size = 8
+key = b"mysecret"  # 8 bytes key
+iv = b"initvect"   # 8 bytes IV
+
+# Plaintext
+plaintext = b"This is a secret message."
+
+# ECB encryption
+ecb_ct = ecb_encrypt(plaintext, key, block_size)
+print("ECB Ciphertext Blocks:")
+for i, b in enumerate(split_blocks(ecb_ct, block_size)):
+    print(f"C{i+1}:", b)
+
+# Introduce error in 1st ciphertext block
+ecb_ct_corrupt = bytearray(ecb_ct)
+ecb_ct_corrupt[0] ^= 0x01  # flip 1 bit in C1
+
+# ECB decrypt corrupted ciphertext
+try:
+    ecb_pt_corrupt = ecb_decrypt(bytes(ecb_ct_corrupt), key, block_size)
+    print("\nECB Decrypted Plaintext with error in C1:", ecb_pt_corrupt)
+except:
+    print("\nECB Decryption failed due to corruption")
+
+# CBC encryption
+cbc_ct = cbc_encrypt(plaintext, key, iv, block_size)
+print("\nCBC Ciphertext Blocks:")
+for i, b in enumerate(split_blocks(cbc_ct, block_size)):
+    print(f"C{i+1}:", b)
+
+# Introduce error in 1st ciphertext block (C1)
+cbc_ct_corrupt = bytearray(cbc_ct)
+cbc_ct_corrupt[0] ^= 0x01  # flip 1 bit in C1
+
+# CBC decrypt corrupted ciphertext
+try:
+    cbc_pt_corrupt = cbc_decrypt(bytes(cbc_ct_corrupt), key, iv, block_size)
+    print("\nCBC Decrypted Plaintext with error in C1:", cbc_pt_corrupt)
+except:
+    print("\nCBC Decryption failed due to corruption")
