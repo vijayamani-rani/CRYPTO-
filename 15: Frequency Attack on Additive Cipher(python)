@@ -1,0 +1,25 @@
+# Problem 15: Letter Frequency Attack on Additive Cipher
+def freq_attack_additive(ciphertext, top_n=10):
+    from collections import Counter
+    freq_order = 'etaoinshrdlucmfwypvbgkqjxz'
+    scores = []
+
+    for shift in range(26):
+        decrypted = ''
+        for ch in ciphertext:
+            if ch.isalpha():
+                decrypted += chr((ord(ch) - ord('a') - shift) % 26 + ord('a'))
+            else:
+                decrypted += ch
+        score = sum(decrypted.count(ch) for ch in freq_order[:5])
+        scores.append((score, shift, decrypted))
+
+    scores.sort(reverse=True)
+    return scores[:top_n]
+
+# Example usage
+cipher = "wklv lv d whvw phvvdjh"
+top_guesses = freq_attack_additive(cipher)
+
+for score, shift, text in top_guesses:
+    print(f"Shift: {shift}, Score: {score}, Text: {text}")
