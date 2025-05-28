@@ -1,0 +1,48 @@
+def xor_bytes(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+
+def pad(text, block_size=8):
+    padding_len = block_size - (len(text) % block_size)
+    return text + bytes([padding_len]) * padding_len
+
+def split_blocks(data, block_size=8):
+    return [data[i:i+block_size] for i in range(0, len(data), block_size)]
+
+# Toy DES encrypt block: XOR with key (8 bytes)
+def des_encrypt_block(block, key):
+    return xor_bytes(block, key)
+
+# Toy DES decrypt block: same as encrypt for XOR
+def des_decrypt_block(block, key):
+    return xor_bytes(block, key)
+
+# 3DES encrypt block: Encrypt-Decrypt-Encrypt with three keys
+def triple_des_encrypt_block(block, k1, k2, k3):
+    temp = des_encrypt_block(block, k1)
+    temp = des_decrypt_block(temp, k2)
+    return des_encrypt_block(temp, k3)
+
+# CBC encryption with 3DES keys
+def triple_des_cbc_encrypt(plaintext, k1, k2, k3, iv, block_size=8):
+    plaintext = pad(plaintext, block_size)
+    blocks = split_blocks(plaintext, block_size)
+    ciphertext = []
+    prev = iv
+    for block in blocks:
+        xored = xor_bytes(block, prev)
+        encrypted = triple_des_encrypt_block(xored, k1, k2, k3)
+        ciphertext.append(encrypted)
+        prev = encrypted
+    return b''.join(ciphertext)
+
+# Example usage:
+plaintext = b"Hello 3DES CBC Mode!"
+block_size = 8
+# Keys: 8 bytes each (for simplicity random or fixed here)
+k1 = b"12345678"
+k2 = b"abcdefgh"
+k3 = b"ABCDEFGH"
+iv = b"initvect"
+
+ciphertext = triple_des_cbc_encrypt(plaintext, k1, k2, k3, iv, block_size)
+print("Ciphertext (hex):", ciphertext.hex())
