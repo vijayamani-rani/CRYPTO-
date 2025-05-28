@@ -1,0 +1,27 @@
+def cfb_encrypt(plaintext, key, iv):
+    ciphertext = b''
+    shift_register = iv
+    for byte in plaintext:
+        enc_sr = encrypt_block(shift_register, key)
+        cipher_byte = byte ^ enc_sr[0]
+        ciphertext += bytes([cipher_byte])
+        shift_register = shift_register[1:] + bytes([cipher_byte])
+    return ciphertext
+
+def cfb_decrypt(ciphertext, key, iv):
+    plaintext = b''
+    shift_register = iv
+    for byte in ciphertext:
+        enc_sr = encrypt_block(shift_register, key)
+        plain_byte = byte ^ enc_sr[0]
+        plaintext += bytes([plain_byte])
+        shift_register = shift_register[1:] + bytes([byte])
+    return plaintext
+
+# Demo
+print("CFB Mode")
+ct = cfb_encrypt(plaintext, key, iv)
+print("Ciphertext:", ct.hex())
+pt = cfb_decrypt(ct, key, iv)
+print("Decrypted:", pt)
+print()
