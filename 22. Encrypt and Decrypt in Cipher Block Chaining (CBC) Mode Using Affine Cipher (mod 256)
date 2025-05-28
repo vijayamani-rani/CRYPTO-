@@ -1,0 +1,60 @@
+# Affine cipher parameters: E(x) = (a*x + b) mod 256, D(y) = a_inv*(y - b) mod 256
+# a must be coprime with 256, let's pick a=5, b=8
+# We'll implement extended Euclidean algorithm to find a_inv
+
+def egcd(a, b):
+    if b == 0:
+        return (a, 1, 0)
+    g, x1, y1 = egcd(b, a % b)
+    x = y1
+    y = x1 - (a // b) * y1
+    return (g, x, y)
+
+def modinv(a, m=256):
+    g, x, _ = egcd(a, m)
+    if g != 1:
+        raise ValueError("No modular inverse")
+    return x % m
+
+a = 5
+b = 8
+a_inv = modinv(a)
+
+def affine_encrypt_byte(x):
+    return (a * x + b) % 256
+
+def affine_decrypt_byte(y):
+    return (a_inv * (y - b)) % 256
+
+def xor_bytes(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+
+def cbc_encrypt_affine(plaintext, iv):
+    ciphertext = b''
+    prev = iv
+    for byte in plaintext:
+        xored = byte ^ prev[0]
+        c = affine_encrypt_byte(xored)
+        ciphertext += bytes([c])
+        prev = bytes([c])
+    return ciphertext
+
+def cbc_decrypt_affine(ciphertext, iv):
+    plaintext = b''
+    prev = iv
+    for byte in ciphertext:
+        d = affine_decrypt_byte(byte)
+        p = d ^ prev[0]
+        plaintext += bytes([p])
+        prev = bytes([byte])
+    return plaintext
+
+# Test data from problem description (binary strings)
+iv = bytes([0b10101010])
+plaintext = bytes([0b00000001, 0b00100011])  # 2 bytes
+key = (a, b)  # a=5, b=8 fixed here
+
+ct = cbc_encrypt_affine(plaintext, iv)
+print("CBC Affine Ciphertext:", [bin(c) for c in ct])
+pt = cbc_decrypt_affine(ct, iv)
+print("CBC Affine Decrypted:", [bin(p) for p in pt])
