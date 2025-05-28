@@ -1,0 +1,30 @@
+def egcd(a, b):
+    if b == 0:
+        return (a, 1, 0)
+    g, x1, y1 = egcd(b, a % b)
+    x = y1
+    y = x1 - (a // b) * y1
+    return (g, x, y)
+
+def modinv(a, m):
+    g, x, _ = egcd(a, m)
+    if g != 1:
+        raise Exception("No modular inverse")
+    return x % m
+
+e = 31
+n = 3599
+
+# Trial factorization to find p and q
+def factor_n(n):
+    for i in range(2, int(n**0.5)+1):
+        if n % i == 0:
+            return i, n // i
+    return None, None
+
+p, q = factor_n(n)
+print(f"Factors of n: p={p}, q={q}")
+
+phi = (p - 1) * (q - 1)
+d = modinv(e, phi)
+print(f"Private key d = {d}")
