@@ -1,0 +1,28 @@
+# Problem 17: DES Decryption Key Schedule (Simplified Version)
+def left_shift(key_half, shift):
+    return key_half[shift:] + key_half[:shift]
+
+# Standard DES left shift schedule
+shift_schedule = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
+# Reverse shift schedule for decryption
+reverse_schedule = shift_schedule[::-1]
+
+def generate_keys(initial_key):
+    key = initial_key
+    left = key[:28]
+    right = key[28:]
+    keys = []
+
+    for shift in shift_schedule:
+        left = left_shift(left, shift)
+        right = left_shift(right, shift)
+        round_key = left + right  # Normally permuted using PC-2
+        keys.append(round_key)
+
+    print("Decryption keys (K16 to K1):")
+    for k in reversed(keys):
+        print(k)
+
+# Example 56-bit key (as a binary string)
+initial_key = '0001001100110100010101110111100110011011101111001101111111110001'[:56]
+generate_keys(initial_key)
