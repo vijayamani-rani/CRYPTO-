@@ -1,0 +1,47 @@
+def generate_matrix(key):
+    key = key.upper().replace("J", "I")
+    matrix = []
+    used = set()
+    for char in key:
+        if char not in used and char.isalpha():
+            matrix.append(char)
+            used.add(char)
+    for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":
+        if char not in used:
+            matrix.append(char)
+            used.add(char)
+    return [matrix[i:i+5] for i in range(0, 25, 5)]
+
+def find_position(matrix, ch):
+    for i in range(5):
+        for j in range(5):
+            if matrix[i][j] == ch:
+                return i, j
+
+def decrypt_playfair(ciphertext, matrix):
+    ciphertext = ciphertext.upper().replace("J", "I").replace(" ", "")
+    plaintext = ''
+    for i in range(0, len(ciphertext), 2):
+        a, b = ciphertext[i], ciphertext[i+1]
+        r1, c1 = find_position(matrix, a)
+        r2, c2 = find_position(matrix, b)
+        if r1 == r2:
+            plaintext += matrix[r1][(c1-1)%5] + matrix[r2][(c2-1)%5]
+        elif c1 == c2:
+            plaintext += matrix[(r1-1)%5][c1] + matrix[(r2-1)%5][c2]
+        else:
+            plaintext += matrix[r1][c2] + matrix[r2][c1]
+    return plaintext
+
+# Keyword for the matrix (could be PT109 or something related to US Navy or JFK)
+keyword = "PT109"
+matrix = generate_matrix(keyword)
+
+ciphertext = '''KXJEY UREBE ZWEHE WRYTU HEYFS
+KREHE GOYFI WTTTU OLKSY CAJPO
+BOTEI ZONTX BYBNT GONEY CUZWR
+GDSON SXBOU YWRHE BAAHY USEDQ'''.replace('\n', ' ').replace(' ', '')
+
+matrix_display = '\n'.join([' '.join(row) for row in matrix])
+print("Playfair Matrix:\n", matrix_display)
+print("\nDecrypted Plaintext:\n", decrypt_playfair(ciphertext, matrix))
