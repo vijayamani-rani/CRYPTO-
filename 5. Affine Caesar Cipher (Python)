@@ -1,0 +1,50 @@
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+def mod_inverse(a, m=26):
+    a = a % m
+    for x in range(1, m):
+        if (a * x) % m == 1:
+            return x
+    return None
+
+def affine_encrypt(plaintext, a, b):
+    ciphertext = ''
+    for ch in plaintext:
+        if ch.isalpha():
+            offset = ord('A') if ch.isupper() else ord('a')
+            p = ord(ch) - offset
+            c = (a * p + b) % 26
+            ciphertext += chr(c + offset)
+        else:
+            ciphertext += ch
+    return ciphertext
+
+def affine_decrypt(ciphertext, a, b):
+    a_inv = mod_inverse(a)
+    if a_inv is None:
+        raise ValueError("No modular inverse for 'a', can't decrypt")
+    plaintext = ''
+    for ch in ciphertext:
+        if ch.isalpha():
+            offset = ord('A') if ch.isupper() else ord('a')
+            c = ord(ch) - offset
+            p = (a_inv * (c - b)) % 26
+            plaintext += chr(p + offset)
+        else:
+            plaintext += ch
+    return plaintext
+
+pt = input("Enter plaintext: ")
+a = int(input("Enter key a (coprime with 26): "))
+b = int(input("Enter key b: "))
+
+if gcd(a, 26) != 1:
+    print("Invalid key 'a'. It must be coprime with 26.")
+else:
+    ct = affine_encrypt(pt, a, b)
+    print("Encrypted:", ct)
+    dt = affine_decrypt(ct, a, b)
+    print("Decrypted:", dt)
