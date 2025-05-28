@@ -1,0 +1,7 @@
+import math
+
+# Total keys (25! / 2) ~ because I/J treated same
+total_keys = math.factorial(25) // 2
+print("Total possible keys ≈ 2^%.2f" % math.log2(total_keys))
+# Unique keys after ignoring equivalent matrices
+print("Estimated effective unique keys ≈ 2^64 (empirical cryptanalysis)")
