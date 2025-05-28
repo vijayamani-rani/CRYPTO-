@@ -1,0 +1,42 @@
+import numpy as np
+
+def modinv(a, m):
+    """Modular inverse using Extended Euclidean Algorithm"""
+    for i in range(1, m):
+        if (a * i) % m == 1:
+            return i
+    return None
+
+def matrix_modinv(matrix, modulus):
+    """Modular inverse of 2x2 matrix"""
+    det = int((matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0]) % modulus)
+    det_inv = modinv(det, modulus)
+    if det_inv is None:
+        raise ValueError("Matrix is not invertible under mod {}".format(modulus))
+
+    # Swap elements and change signs for adjugate
+    inv_matrix = [[matrix[1][1], -matrix[0][1]],
+                  [-matrix[1][0], matrix[0][0]]]
+
+    # Apply mod and multiply by inverse of determinant
+    for i in range(2):
+        for j in range(2):
+            inv_matrix[i][j] = (inv_matrix[i][j] * det_inv) % modulus
+
+    return np.array(inv_matrix)
+
+# Known plaintext ("HI", "EL") and ciphertext ("XY", "DE")
+P = np.array([[ord('H') - 65, ord('I') - 65],  # H=7, I=8
+              [ord('E') - 65, ord('L') - 65]]) # E=4, L=11
+
+C = np.array([[ord('X') - 65, ord('Y') - 65],  # X=23, Y=24
+              [ord('D') - 65, ord('E') - 65]]) # D=3, E=4
+
+# Invert plaintext matrix mod 26
+P_inv = matrix_modinv(P, 26)
+
+# Key = Cipher * P_inv mod 26
+K = (np.dot(C, P_inv) % 26).astype(int)
+
+print("Recovered Key Matrix:")
+print(K)
