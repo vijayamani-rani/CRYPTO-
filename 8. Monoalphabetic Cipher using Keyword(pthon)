@@ -1,0 +1,14 @@
+def generate_cipher_alphabet(keyword):
+    keyword = ''.join(sorted(set(keyword.upper()), key=keyword.index))
+    remaining = ''.join([chr(i) for i in range(65, 91) if chr(i) not in keyword])
+    return keyword + remaining
+
+def monoalphabetic_encrypt(plaintext, keyword):
+    cipher_alpha = generate_cipher_alphabet(keyword)
+    table = {chr(i): cipher_alpha[i - 65] for i in range(65, 91)}
+    return ''.join(table.get(ch.upper(), ch) for ch in plaintext)
+
+keyword = "CIPHER"
+plaintext = "defend the east wall of the castle"
+ciphertext = monoalphabetic_encrypt(plaintext, keyword)
+print("Ciphertext:", ciphertext)
