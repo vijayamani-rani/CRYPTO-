@@ -1,0 +1,28 @@
+# Problem 19: Hill Cipher Chosen Plaintext Attack (2x2)
+import numpy as np
+
+def modinv(a, m):
+    for i in range(1, m):
+        if (a * i) % m == 1:
+            return i
+    return -1
+
+def matrix_modinv(matrix, modulus):
+    det = int(np.round(np.linalg.det(matrix)))
+    det_inv = modinv(det % modulus, modulus)
+    if det_inv == -1:
+        raise ValueError("Matrix is not invertible")
+    adj = np.round(det * np.linalg.inv(matrix)).astype(int) % modulus
+    return (det_inv * adj) % modulus
+
+# Example: Chosen plaintexts and corresponding ciphertexts
+P = np.array([[7, 8], [4, 11]])  # 'H' 'I', 'E' 'L'
+C = np.array([[23, 24], [3, 4]])  # 'X' 'Y', 'D' 'E'
+
+try:
+    P_inv = matrix_modinv(P, 26)
+    key_matrix = (np.dot(C, P_inv) % 26).astype(int)
+    print("Recovered Key Matrix:")
+    print(key_matrix)
+except ValueError as e:
+    print(e)
