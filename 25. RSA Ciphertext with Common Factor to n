@@ -1,0 +1,28 @@
+# Function to compute the greatest common divisor (GCD)
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+# Example RSA public key
+n = 3599  # Given: n = p * q (where p and q are primes)
+e = 31    # Public exponent
+
+# Simulated plaintext block known to share a common factor with n
+plaintext_block = 77  # Let's say this is known or guessed to be non-coprime with n
+
+# Compute the GCD of plaintext_block and n
+common_factor = gcd(plaintext_block, n)
+
+print(f"Plaintext block: {plaintext_block}")
+print(f"n = {n}")
+print(f"GCD(plaintext_block, n) = {common_factor}")
+
+# If common_factor is > 1 and < n, it is a prime factor of n (either p or q)
+if 1 < common_factor < n:
+    p = common_factor
+    q = n // p
+    print(f"n can be factored as: p = {p}, q = {q}")
+    print("=> RSA is broken because private key can now be computed.")
+else:
+    print("No useful common factor found. RSA remains secure.")
