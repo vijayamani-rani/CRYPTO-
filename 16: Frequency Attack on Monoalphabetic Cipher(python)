@@ -1,0 +1,21 @@
+# Problem 16: Frequency Attack on Monoalphabetic Substitution Cipher
+def freq_attack_substitution(ciphertext, top_n=10):
+    from collections import Counter
+    freq_order = 'etaoinshrdlucmfwypvbgkqjxz'
+    count = Counter(c for c in ciphertext if c.isalpha())
+    sorted_cipher_chars = [item[0] for item in count.most_common()]
+
+    mapping = dict(zip(sorted_cipher_chars, freq_order))
+    decrypted = ''
+    for ch in ciphertext:
+        if ch.isalpha():
+            decrypted += mapping.get(ch, ch)
+        else:
+            decrypted += ch
+
+    print("Decrypted Message:", decrypted)
+    print("Mapping used:", mapping)
+
+# Example usage
+cipher = "zpv dboopu sfbe uijt nfttbhf"
+freq_attack_substitution(cipher)
